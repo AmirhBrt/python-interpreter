@@ -1,6 +1,17 @@
 #lang racket
 (require (lib "eopl.ss" "eopl"))
 
+(define-datatype program program?
+  (a-program
+    (prog-statements statement*?)))
+
+(define-datatype statement* statement*?
+  (single-statement
+    (a-statement statement?))
+  (statements
+    (rest-statements statement*?)
+    (last-statement  statement?)))
+
 (define-datatype statement statement?
   (assign 
     (var string?) 
@@ -16,31 +27,34 @@
   (func 
     (name string?) 
     (params func_param*?) 
-    (statements list?))
+    (func_sts statement*?))
   (if_stmt 
     (cond_exp expression?) 
-    (if_sts list?) 
-    (else_sts list?))
+    (if_sts statement*?) 
+    (else_sts statement*?))
   (for_stmt 
     (iter string?) 
     (list_exp expression?) 
-    (sts list?))
+    (for_sts statement*?))
   (print_stmt 
-    (expressions expression*?))
-)
-
-(define-datatype func_param func_param?
-  (with_default 
-    (var string?) 
-    (expr expression?))
-)
+    (expressions expression*?)))
 
 (define-datatype func_param* func_param*?
   (empty-param)
   (func_params 
     (param func_param?) 
-    (rest-params func_param*?))
-)
+    (rest-params func_param*?)))
+
+(define-datatype func_param func_param?
+  (with_default 
+    (var string?) 
+    (expr expression?)))
+
+(define-datatype expression* expression*?
+  (empty-expr)
+  (expressions 
+    (expr expression?) 
+    (rest-exprs expression*?)))
 
 (define-datatype expression expression?
   (binary_op 
@@ -64,15 +78,119 @@
     (num number?))
   (atomic_null_exp)
   (atomic_list_exp 
-    (l expression*?))
-)
+    (l expression*?)))
 
-(define-datatype expression* expression*?
-  (empty-expr)
-  (expressions 
-    (expr expression?) 
-    (rest-exprs expression*?))
-)
+
+(define-datatype environment environment?
+  (empty-environment)
+  (extend-environment
+    (var string?)
+    (val expval?)
+    (env environment?)))
+
+
+(define-datatype expval expval?
+  (num-val 
+    (num number?))
+  (bool-val   
+    (flag boolean?))
+  (string-val 
+    (str string?))
+  (proc-val
+    (proc proc?))
+  (array-val  
+    (array array?))
+  (ref-val
+    (ref reference?)))
+
+(define expval->num
+  (lambda (v)
+    (cases expval v
+      (num-val (num) num)
+      (else (expval-extractor-error 'num v)))))
+
+(define expval->bool
+  (lambda (v)
+    (cases expval v
+      (bool-val (bool) bool)
+      (else (expval-extractor-error 'bool v)))))
+
+(define expval->proc
+  (lambda (v)
+    (cases expval v
+      (proc-val (proc) proc)
+      (else (expval-extractor-error 'proc v)))))
+
+(define expval->ref
+  (lambda (v)
+    (cases expval v
+      (ref-val (ref) ref)
+      (else (expval-extractor-error 'reference v)))))
+
+(define expval->array
+  (lambda (v)
+    (cases expval v
+      (array-val (ref) ref)
+      (else (expval-extractor-error 'array v)))))
+
+(define expval-extractor-error
+  (lambda (variant value)
+    (eopl:error 'expval-extractors "Looking for a ~s, found ~s"
+                variant value)))
+
+
+(define-datatype proc proc?
+  (procedure
+    (name string?) 
+    (params func_param*?) 
+    (func_sts statement*?)
+    (env environment?)))
+
+
+(define-datatype array array?
+  (empty-array)
+  (a-array
+    (first reference?)
+    (rest array?)))
+
+(define make-array
+  (lambda (vals)
+    (if (null? vals)
+        (empty-array)
+        (a-array
+         (newref (car vals))
+         (make-array (cdr vals))))))
+
+(define array-ref
+  (lambda (arr idx)
+    (letrec ((array-ref-rec (lambda (arr i)
+                              (cases array arr
+                                (a-array (car-loc cdr-loc)
+                                         (if (zero? i)
+                                             (deref car-loc)
+                                             (array-ref-rec cdr-loc (- i 1))))
+                                (else (array-out-of-bound-error idx))))))
+      (array-ref-rec arr idx))))
+
+(define array-set
+  (lambda (arr idx val)
+    (letrec ((array-set-rec (lambda (arr i)
+                              (cases array arr
+                                (a-array (car-loc cdr-loc)
+                                         (if (zero? i)
+                                             (setref! car-loc val)
+                                             (array-set-rec cdr-loc (- i 1))))
+                                (else (array-out-of-bound-error idx))))))
+      (array-set-rec arr idx))))
+
+(define array-out-of-bound-error
+  (lambda (value)
+    (eopl:error 'arr-extractor "Array index out of bound. index ~s" value)))
+
+
+(define reference?
+  (lambda (v)
+    (integer? v)))
 
 (provide (all-defined-out))
 (#%provide (all-defined))

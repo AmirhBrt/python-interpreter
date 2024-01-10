@@ -18,9 +18,9 @@
     COND_KWS COND_OPS ARITH_OPS INDEX_OPS END
     )
    (grammar
-    (Program ((Statements) $1))
-    (Statements ((Statement SEMICOLON) (list $1))
-                ((Statements Statement SEMICOLON) (append $1 (list $2)))
+    (Program ((Statements) (a-program $1)))
+    (Statements ((Statement SEMICOLON) (single-statement $1))
+                ((Statements Statement SEMICOLON) (statements $1 $2))
                 )
     (Statement ((Compound_stmt) $1)
                ((Simple_stmt) $1)
