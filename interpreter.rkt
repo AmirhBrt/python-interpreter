@@ -9,7 +9,7 @@
 (define value-of-statements
   (lambda (parse-tree env)
     (cond
-      [(null? parse-tree) (cons env (list (empty-val)))]
+      [(null? parse-tree) (cons (empty-val) (list env))]
       [(= 1 (length parse-tree)) (value-of-statement (car parse-tree) env)]
       [else (letrec ([rev (reverse parse-tree)]
                      [car-rev (car rev)]
@@ -23,7 +23,7 @@
       (assign (var expr) (letrec ([val (car (value-of-expression expr env))]
                                   [ref (newref val)]
                                   [new-env (extend-environment var (ref-val ref) env)])
-                          (cons new-env (list (empty-val)))))
+                          (cons (empty-val) (list new-env))))
       (print_stmt (exps) 
         (letrec ([print_exp (lambda (exps) 
           (cond

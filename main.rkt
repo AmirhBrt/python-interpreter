@@ -17,9 +17,7 @@
 (define (interpreter file-name)
   (begin
   (initialize-store!)
-  (value-of-statements (evaluate file-name) (init-env))
-  )
-  )
+  (value-of-statements (evaluate file-name) (init-env))))
 
 (interpreter "./test2.py")
 
