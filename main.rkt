@@ -7,12 +7,10 @@
 (require "store.rkt")
 
 (define (parse-scan prog-string)
-  (python-parser (lex-this prog-string))
-  )
+  (python-parser (lex-this prog-string)))
 
 (define (evaluate file-name)
-  (parse-scan (string-join (file->lines file-name)))
-  )
+  (parse-scan (string-join (file->lines file-name))))
 
 (define (interpreter file-name)
   (begin

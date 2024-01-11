@@ -5,6 +5,7 @@
 (require "environment.rkt")
 (require "parser.rkt")
 (require "store.rkt")
+(require "print.rkt")
 
 (define value-of-statements
   (lambda (parse-tree env)
