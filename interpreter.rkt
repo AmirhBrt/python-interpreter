@@ -81,6 +81,10 @@
         (let ([expval (car (value-of-expression exp  env))])
           (let ([val (expval->num expval)])
             (list (num-val (op 0 val)) env))))
+      (list_ref (ref idx)
+        (let ([arr (expval->array (car (value-of-expression ref env)))]
+              [idx (expval->num (car (value-of-expression idx env)))])
+          (list (array-ref arr idx) env)))
       (atomic_bool_exp (val) 
         (list (bool-val val) env))
       (atomic_num_exp (val) 
