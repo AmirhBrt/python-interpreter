@@ -2,9 +2,9 @@
 
 (require (lib "eopl.ss" "eopl"))
 (require "datatypes/all.rkt")
-(require "environment.rkt")
+(require "utils/environment.rkt")
 (require "passes/parser.rkt")
-(require "print.rkt")
+(require "utils/print.rkt")
 
 
 

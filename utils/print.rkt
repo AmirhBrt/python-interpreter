@@ -1,6 +1,6 @@
 #lang racket
 (require (lib "eopl.ss" "eopl"))
-(require "datatypes/all.rkt")
+(require "../datatypes/all.rkt")
 
 
 (define print-vals
