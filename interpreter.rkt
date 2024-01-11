@@ -28,6 +28,7 @@
           (cons (empty-val) (list new-env))))
 
       (print_stmt (exps) 
+      
         (letrec ([get-exp-vals (lambda (exps) 
                                 (cases expression* exps
                                   (empty-expr  () 
@@ -39,8 +40,20 @@
           (begin 
             (print-vals (get-exp-vals exps))
             (cons (empty-val) (list env))
-          )))
-            
+          )))          
+
+      (if_stmt (exp if_sts else_sts)
+        (letrec ([calc_sts 
+          (lambda (statements env) 
+              (cond
+                [(null? statements) (list (empty-val) env)]
+                [else (calc_sts (cdr statements) 
+                                (cadr (value-of-statement (car statements) env)))]))
+        ])
+        (cond
+          [(car (value-of-expression exp env)) (calc_sts if_sts env)]
+          [else (calc_sts else_sts env)])))
+
       (else (eopl:error "FUCK\n")))))
 
 
@@ -57,7 +70,7 @@
       (atomic_bool_exp (val) (list (bool-val val) env))
       (atomic_num_exp (val) (list (num-val val) env))
       (atomic_null_exp () (list (empty-val) env))
-
+      (ref (var) (list (deref (expval->ref (apply-env env var))) env))
       (else (eopl:error "BARATI\n"))
     )
   )

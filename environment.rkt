@@ -12,10 +12,11 @@
     (cases environment env
       (empty-environment ()
         (eopl:error 'apply-env "No binding for ~s" search-var))
-      (extend-environment (var val saved-env)
-        (if (eqv? search-var var)
+      (extend-environment (var val saved-env)        
+        (if (string=? search-var var)
           val
-          (apply-env saved-env search-var))))))
+          (apply-env saved-env search-var))
+        ))))
 
 ;;; (define update-env
 ;;;   (lambda (var val env))
