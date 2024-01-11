@@ -1,10 +1,9 @@
 #lang racket
 
 (require (lib "eopl.ss" "eopl"))
-(require "datatypes.rkt")
+(require "datatypes/all.rkt")
 (require "environment.rkt")
-(require "parser.rkt")
-(require "store.rkt")
+(require "passes/parser.rkt")
 (require "print.rkt")
 
 
@@ -74,6 +73,10 @@
           (let ([val1 (expval->num expval1)]
                 [val2 (expval->num expval2)])
             (list (num-val (op val1 val2)) env))))
+      (unary_op (op exp)
+        (let ([expval (car (value-of-expression exp  env))])
+          (let ([val (expval->num expval)])
+            (list (num-val (op 0 val)) env))))
       (atomic_bool_exp (val) 
         (list (bool-val val) env))
       (atomic_num_exp (val) 

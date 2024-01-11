@@ -2,6 +2,6 @@
 
 (require "interpreter.rkt")
 
-(evaluate "./test2.py")
+(evaluate "./test.py")
 
 (provide (all-defined-out))

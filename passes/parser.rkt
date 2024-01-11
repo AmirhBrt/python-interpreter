@@ -5,8 +5,8 @@
          parser-tools/yacc)
 
 
-(require "datatypes.rkt")
-(#%require "datatypes.rkt")
+(require "../datatypes/all.rkt")
+(#%require "../datatypes/all.rkt")
 
 (define python-parser
   (parser
@@ -71,7 +71,7 @@
     (Eq_Sum ((Sum ISEQ Sum) (binary_op equal? $1 $3)))
     (Lt_Sum ((Sum LT Sum) (binary_op < $1 $3)))
     (Gt_Sum ((Sum BT Sum) (binary_op > $1 $3)))
-    (Sum ((Sum PLUS Term) (binary_op (lambda (x y) (if (number? x) (+ x y) (append x y))) $1 $3))
+    (Sum ((Sum PLUS Term) (binary_op (lambda (x y) (if (number? x) (+ x y) (append-array x y))) $1 $3))
          ((Sum MINUS Term) (binary_op - $1 $3))
          ((Term) $1)
          )

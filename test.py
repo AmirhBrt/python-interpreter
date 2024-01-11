@@ -1,15 +1,9 @@
-def function():
-  pass;;
+x = 10;
+y = x + 11;
+print(y);
 
-for i in [1, 2, 3]:
-  x = i+2;
-  x=x+2;;
-for i in [2, 3]:
-  z = 1;
-  break;;
-
-i=2;
-if i==2:
-    pass;
+x = False;
+if x:
+    print(3 + y);
 else:
-    break;;
+    print(2 * y);;
