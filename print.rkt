@@ -6,18 +6,26 @@
 (define print-vals
   (lambda (vals) 
     (cond
-      [(null? vals)]
+      [(null? vals) (display "\n")]
       [else (begin 
               (print-val (car vals))
-              (display " ")
               (print-vals (cdr vals)))])))
 
 (define print-val
   (lambda (v)
     (cases expval v
-      (empty-val () (display "\n"))
-      (num-val (num) (display num))
-      (bool-val (bool) (display bool))
+      (empty-val () 
+        (display ""))
+      (num-val (num) 
+        (begin 
+          (display num)
+          (display " ")
+        ))
+      (bool-val (bool)
+        (if 
+          bool 
+          (display "True ")
+          (display "False ")))
       (else (eopl:error "Invalid expval type")))))
 
 (provide (all-defined-out))

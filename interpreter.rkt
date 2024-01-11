@@ -28,15 +28,14 @@
           (cons (empty-val) (list new-env))))
 
       (print_stmt (exps) 
-
         (letrec ([get-exp-vals (lambda (exps) 
                                 (cases expression* exps
                                   (empty-expr  () 
                                                (list (empty-val)))
                                   (expressions (expr rest-exprs)
-                                               (cons 
-                                                (car (value-of-expression expr env)) 
-                                                (get-exp-vals rest-exprs)))))])
+                                               (append 
+                                                (get-exp-vals rest-exprs)
+                                                (list (car (value-of-expression expr env)))))))])
           (begin 
             (print-vals (get-exp-vals exps))
             (cons (empty-val) (list env))
@@ -54,11 +53,9 @@
           [(expval->bool (car (value-of-expression exp env))) (calc_sts if_sts env)]
           [else (calc_sts else_sts env)])))
 
-      (else (eopl:error "FUCK\n")))))
+      (else (eopl:error "NAJAFI\n")))))
 
 
-;;; (define value-of-statement
-;;;   ())
 
 (define value-of-expression 
   (lambda (exp env) 
