@@ -116,7 +116,7 @@
 (define expval->array
   (lambda (v)
     (cases expval v
-      (array-val (ref) ref)
+      (array-val (arr) arr)
       (else (expval-extractor-error 'array v)))))
 
 (define expval-extractor-error
@@ -128,16 +128,18 @@
 (define-datatype array array?
   (empty-array)
   (a-array
-    (first reference?)
+    (first expval?)
     (rest array?)))
 
 (define make-array
-  (lambda (vals)
-    (if (null? vals)
-        (empty-array)
-        (a-array
-         (newref (car vals))
-         (make-array (cdr vals))))))
+  (lambda (expvals)
+      (cond 
+        [(null? expvals) 
+          (empty-array)]
+        [else 
+          (a-array
+            (car expvals)
+            (make-array (cdr expvals)))])))
 
 (define array-ref
   (lambda (arr idx)

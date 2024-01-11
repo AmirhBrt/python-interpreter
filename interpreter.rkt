@@ -20,7 +20,7 @@
 (define value-of-statements
   (lambda (parse-tree env)
     (cond
-      [(null? parse-tree) (cons (empty-val) (list env))]
+      [(null? parse-tree) (list (empty-val) env)]
       [(= 1 (length parse-tree)) (value-of-statement (car parse-tree) env)]
       [else (letrec ([rev (reverse parse-tree)]
                      [car-rev (car rev)]
@@ -38,29 +38,21 @@
           (cons (empty-val) (list new-env))))
 
       (print_stmt (exps) 
-        (letrec ([get-exp-vals (lambda (exps) 
-                                (cases expression* exps
-                                  (empty-expr  () 
-                                               (list (empty-val)))
-                                  (expressions (expr rest-exprs)
-                                               (append 
-                                                (get-exp-vals rest-exprs)
-                                                (list (car (value-of-expression expr env)))))))])
-          (begin 
-            (print-vals (get-exp-vals exps))
-            (cons (empty-val) (list env)))))
+        (begin 
+          (print-vals (get-exp-vals exps env))
+          (cons (empty-val) (list env))))
 
       (if_stmt (exp if_sts else_sts)
-        (letrec ([calc_sts 
-          (lambda (statements env) 
-              (cond
-                [(null? statements) (list (empty-val) env)]
-                [else (calc_sts (cdr statements) 
-                                (cadr (value-of-statement (car statements) env)))]))
-        ])
-        (cond
-          [(expval->bool (car (value-of-expression exp env))) (calc_sts if_sts env)]
-          [else (calc_sts else_sts env)])))
+        (letrec 
+          ([calc_sts 
+            (lambda (statements env) 
+                (cond
+                  [(null? statements) (list (empty-val) env)]
+                  [else (calc_sts (cdr statements) 
+                                  (cadr (value-of-statement (car statements) env)))]))])
+          (cond
+            [(expval->bool (car (value-of-expression exp env))) (calc_sts if_sts env)]
+            [else (calc_sts else_sts env)])))
 
       (else (eopl:error "NAJAFI\n")))))
 
@@ -73,10 +65,26 @@
         (let ([val1 (expval->num (car (value-of-expression left env)))]
               [val2 (expval->num (car (value-of-expression right env)))])
              (list (num-val (* val1 val2)) env)))
-      (atomic_bool_exp (val) (list (bool-val val) env))
-      (atomic_num_exp (val) (list (num-val val) env))
-      (atomic_null_exp () (list (empty-val) env))
+      (atomic_bool_exp (val) 
+        (list (bool-val val) env))
+      (atomic_num_exp (val) 
+        (list (num-val val) env))
+      (atomic_null_exp () 
+        (list (empty-val) env))
+      (atomic_list_exp (exps) 
+        (list (array-val (make-array (get-exp-vals exps env))) env))
+        
       (ref (var) (list (deref (expval->ref (apply-env env var))) env))
       (else (eopl:error "BARATI\n")))))
+
+(define get-exp-vals
+  (lambda (exps env)
+    (cases expression* exps
+      (empty-expr  ()
+        (list))
+      (expressions (expr rest-exprs)
+        (append 
+          (get-exp-vals rest-exprs env)
+          (list (car (value-of-expression expr env))))))))
 
 (provide (all-defined-out))
