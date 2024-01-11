@@ -38,8 +38,7 @@
                                                 (list (car (value-of-expression expr env)))))))])
           (begin 
             (print-vals (get-exp-vals exps))
-            (cons (empty-val) (list env))
-          )))
+            (cons (empty-val) (list env)))))
 
       (if_stmt (exp if_sts else_sts)
         (letrec ([calc_sts 
@@ -68,9 +67,6 @@
       (atomic_num_exp (val) (list (num-val val) env))
       (atomic_null_exp () (list (empty-val) env))
       (ref (var) (list (deref (expval->ref (apply-env env var))) env))
-      (else (eopl:error "BARATI\n"))
-    )
-  )
-)
+      (else (eopl:error "BARATI\n")))))
 
 (provide (all-defined-out))
