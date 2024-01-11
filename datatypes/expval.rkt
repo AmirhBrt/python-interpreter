@@ -8,8 +8,8 @@
   (lambda (v)
     (cases expval v
       (num-val (num) num)
-      (bool-val (bool) 
-        (if bool 1 0))
+      ;;; (bool-val (bool) 
+      ;;;   (if bool 1 0))
       (else (expval-extractor-error 'num v)))))
 
 (define expval->bool
@@ -29,6 +29,14 @@
     (cases expval v
       (array-val (arr) arr)
       (else (expval-extractor-error 'array v)))))
+
+(define expval->array_or_num_or_bool
+  (lambda (v)
+    (cases expval v
+      (array-val (arr) arr)
+      (num-val (num) num)
+      (bool-val (bool) bool)
+      (else (expval-extractor-error 'array_or_num_or_bool v)))))
 
 (define expval-extractor-error
   (lambda (variant value)

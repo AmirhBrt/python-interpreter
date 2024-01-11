@@ -58,7 +58,7 @@
                  ((Disjunction OR Conjunction) (binary_op (lambda (x y) (or x y)) $1 $3))
                  )
     (Conjunction ((Inversion) $1)
-                 ((Conjunction AND Inversion) (binary_op (lambda (x y) (or x y)) $1 $3))
+                 ((Conjunction AND Inversion) (binary_op (lambda (x y) (and x y)) $1 $3))
                  )
     (Inversion ((NOT Inversion) (unary_op not $2))
                ((Comparison) $1)

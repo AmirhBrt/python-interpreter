@@ -11,7 +11,7 @@
   (begin 
     (initialize-store!)
     (value-of-statements parse-tree (init-env))
-    (display "\n")))
+    (display "")))
 
 (define (evaluate file-name)
   (interpret (evaluate-parser file-name)))
@@ -70,9 +70,13 @@
       (binary_op (op left right)
         (let ([expval1 (car (value-of-expression left  env))]
               [expval2 (car (value-of-expression right env))])
-          (let ([val1 (expval->num expval1)]
-                [val2 (expval->num expval2)])
-            (list (num-val (op val1 val2)) env))))
+          (let ([val1 (expval->array_or_num_or_bool expval1)]
+                [val2 (expval->array_or_num_or_bool expval2)])
+            (let ([ans (op val1 val2)])
+              (cond 
+                [(boolean? ans) (list (bool-val ans) env)]
+                [(number? ans) (list (num-val ans) env)]
+                [else (list (array-val ans) env)])))))
       (unary_op (op exp)
         (let ([expval (car (value-of-expression exp  env))])
           (let ([val (expval->num expval)])

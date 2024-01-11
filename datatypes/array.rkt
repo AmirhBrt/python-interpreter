@@ -14,7 +14,7 @@
             (make-array (cdr expvals)))])))
 
 (define get-array-as-list
-  (lambda arr
+  (lambda (arr)
     (cases array arr
       (empty-array () (list))
       (a-array (first rest)
