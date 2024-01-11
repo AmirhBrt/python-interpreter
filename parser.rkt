@@ -75,7 +75,7 @@
          ((Sum MINUS Term) (binary_op - $1 $3))
          ((Term) $1)
          )
-    (Term ((Term MULTI Factor) (binary_op * $1 $3))
+    (Term ((Term MULTI Factor) (mult_op * $1 $3))
           ((Term DIV Factor) (binary_op / $1 $3))
           ((Factor) $1)
           )

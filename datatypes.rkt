@@ -1,5 +1,7 @@
 #lang racket
+
 (require (lib "eopl.ss" "eopl"))
+(require "store.rkt")
 
 (define-datatype program program?
   (a-program
@@ -57,6 +59,9 @@
     (rest-exprs expression*?)))
 
 (define-datatype expression expression?
+  (mult_op
+    (left expression?)
+    (right expression?))
   (binary_op 
     (op procedure?) 
     (left expression?) 
