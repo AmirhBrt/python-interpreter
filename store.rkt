@@ -52,3 +52,4 @@
                 "illegal reference ~s in store ~s"
                 ref the-store)))
 
+(provide (all-defined-out))

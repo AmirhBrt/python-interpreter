@@ -22,3 +22,4 @@
 ;;;     (cases environment env
 ;;;       (empty-environment ()
 ;;;         (eopl:error ')))
+(provide (all-defined-out))
