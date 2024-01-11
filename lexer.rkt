@@ -79,8 +79,8 @@
    ((eof) (token-EOF))))
 
 
-;test
-(define (lex-this prog-string)
+
+(define (lex prog-string)
   (let ([l (open-input-string prog-string)])
     (begin
       (lambda ()

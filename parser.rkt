@@ -110,4 +110,10 @@
    ;    (debug "parser-log.txt")
    ))
 
+(define (parse-scan prog-string)
+  (python-parser (lex prog-string)))
+
+(define (evaluate-parser file-name)
+  (parse-scan (string-join (file->lines file-name))))
+
 (provide (all-defined-out))

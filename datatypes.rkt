@@ -88,9 +88,6 @@
     (num number?))
   (bool-val   
     (flag boolean?))
-  (string-val 
-    (str string?))
-  ;;; (proc-valx
   (array-val  
     (array array?))
   (ref-val
@@ -100,6 +97,8 @@
   (lambda (v)
     (cases expval v
       (num-val (num) num)
+      (bool-val (bool) 
+        (if bool 1 0))
       (else (expval-extractor-error 'num v)))))
 
 (define expval->bool
@@ -107,12 +106,6 @@
     (cases expval v
       (bool-val (bool) bool)
       (else (expval-extractor-error 'bool v)))))
-
-;;; (define expval->proc
-;;;   (lambda (v)
-;;;     (cases expval v
-;;;       (proc-val (proc) proc)
-;;;       (else (expval-extractor-error 'proc v)))))
 
 (define expval->ref
   (lambda (v)
@@ -130,14 +123,6 @@
   (lambda (variant value)
     (eopl:error 'expval-extractors "Looking for a ~s, found ~s"
                 variant value)))
-
-
-;;; (define-datatype proc proc?
-;;;   (procedure
-;;;     (name string?) 
-;;;     (params func_param*?) 
-;;;     (func_sts statement*?)
-;;;     (env environment?)))
 
 
 (define-datatype array array?

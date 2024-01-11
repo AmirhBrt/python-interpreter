@@ -7,6 +7,16 @@
 (require "store.rkt")
 (require "print.rkt")
 
+
+(define (interpret parse-tree)
+  (begin 
+    (initialize-store!)
+    (value-of-statements parse-tree (init-env))
+    (display "\n")))
+
+(define (evaluate file-name)
+  (interpret (evaluate-parser file-name)))
+
 (define value-of-statements
   (lambda (parse-tree env)
     (cond
