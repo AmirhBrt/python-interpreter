@@ -18,9 +18,14 @@
           (apply-env saved-env search-var))
         ))))
 
-;;; (define update-env
-;;;   (lambda (var val env))
-;;;     (cases environment env
-;;;       (empty-environment ()
-;;;         (eopl:error ')))
+(define is-in-env
+  (lambda (env search-var)
+    (cases environment env
+      (empty-environment () #f)
+      (extend-environment (var val saved-env)
+        (if 
+          (string=? search-var var)
+          #t
+          (is-in-env saved-env search-var))))))
+
 (provide (all-defined-out))

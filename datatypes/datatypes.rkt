@@ -88,6 +88,8 @@
 
 (define-datatype expval expval?
   (empty-val)
+  (break-val)
+  (continue-val)
   (num-val 
     (num number?))
   (bool-val   

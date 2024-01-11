@@ -1,10 +1,11 @@
-x = [1, 2, 3, 4] + [10, 11, 12];
-z = x[1];
-print(z);
+counter = 0;
+x = 0;
+for i in [1, 2, 3, 4, 5]:
+    if i == 3:
+        continue;
+    else:
+        x = x + i;;;
 
-y = z + 20;
+print(x);
+print(counter);
 
-if y == 30:
-    print(x);
-else:
-    print(z ** 10);;

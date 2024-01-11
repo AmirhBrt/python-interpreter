@@ -7,25 +7,29 @@
 (require "print.rkt")
 
 
+
+(define (evaluate file-name)
+  (interpret (evaluate-parser file-name)))
+
 (define (interpret parse-tree)
   (begin 
     (initialize-store!)
     (value-of-statements parse-tree (init-env))
     (display "")))
 
-(define (evaluate file-name)
-  (interpret (evaluate-parser file-name)))
 
 (define value-of-statements
-  (lambda (parse-tree env)
+  (lambda (sts env)
     (cond
-      [(null? parse-tree) (list (empty-val) env)]
-      [(= 1 (length parse-tree)) (value-of-statement (car parse-tree) env)]
-      [else (letrec ([rev (reverse parse-tree)]
-                     [car-rev (car rev)]
-                     [cdr-rev (reverse (cdr rev))])
-            (value-of-statement car-rev (cadr (value-of-statements cdr-rev env))))])))
-
+      [(null? sts) (list (empty-val) env)]
+      [(= 1 (length sts)) (value-of-statement (car sts) env)]
+      [else 
+        (let ([first-statement-val (value-of-statement (car sts) env)])
+          (if (or 
+                (equal? (car first-statement-val) (break-val))
+                (equal? (car first-statement-val) (continue-val)))
+              first-statement-val
+              (value-of-statements (cdr sts) (cadr first-statement-val))))])))
 
 (define value-of-statement
   (lambda (stmt env)
@@ -42,20 +46,35 @@
           (cons (empty-val) (list env))))
 
       (if_stmt (exp if_sts else_sts)
-        (letrec 
-          ([calc_sts 
-            (lambda (statements env) 
-                (cond
-                  [(null? statements) (list (empty-val) env)]
-                  [else (calc_sts (cdr statements) 
-                                  (cadr (value-of-statement (car statements) env)))]))])
+        (let ([val (car (value-of-expression exp env))])
           (cond
-            [(expval->bool (car (value-of-expression exp env))) (calc_sts if_sts env)]
-            [else (calc_sts else_sts env)])))
+          [(expval->bool val) (value-of-statements if_sts env)]
+          [else (value-of-statements else_sts env)])))
+
+      (pass () (list (empty-val) env))
+      (continue () (list (continue-val) env))
+      (break () (list (break-val) env))
+      
+      (for_stmt (iter array-exp sts)
+        (let ([ls (get-array-as-list (expval->array (car (value-of-expression array-exp env))))]
+              [new-env (if (is-in-env env iter) 
+                            env 
+                            (extend-environment iter (ref-val (newref 0)) env))])
+          (value-of-for-statement iter ls sts new-env)))
 
       (else (eopl:error "NAJAFI\n")))))
 
-
+(define value-of-for-statement
+  (lambda (iter expval-ls sts env)
+    (cond
+      [(null? expval-ls) (list (empty-val) env)]
+      [else (begin
+              (setref! (expval->ref (apply-env env iter)) (car expval-ls))
+              (let ([for-statement-val (value-of-statements sts env)])
+                (if 
+                  (equal? (break-val) (car for-statement-val))
+                  (list (empty-val) (cadr for-statement-val))
+                  (value-of-for-statement iter (cdr expval-ls) sts (cadr for-statement-val)))))])))
 
 (define value-of-expression 
   (lambda (exp env) 
