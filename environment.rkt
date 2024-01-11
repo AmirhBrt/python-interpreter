@@ -17,6 +17,11 @@
           val
           (apply-env saved-env search-var))))))
 
+
+(define extend-env
+  (lambda (var val env)
+    (extend-environment var (new-ref val))
+
 ;;; (define update-env
 ;;;   (lambda (var val env))
 ;;;     (cases environment env

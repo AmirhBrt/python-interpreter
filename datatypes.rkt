@@ -28,21 +28,18 @@
     (list_exp expression?) 
     (sts list?))
   (print_stmt 
-    (expressions expression*?))
-)
+    (expressions expression*?)))
 
 (define-datatype func_param func_param?
   (with_default 
     (var string?) 
-    (expr expression?))
-)
+    (expr expression?)))
 
 (define-datatype func_param* func_param*?
   (empty-param)
   (func_params 
     (param func_param?) 
-    (rest-params func_param*?))
-)
+    (rest-params func_param*?)))
 
 (define-datatype expression expression?
   (mult_op
@@ -69,15 +66,14 @@
     (num number?))
   (atomic_null_exp)
   (atomic_list_exp 
-    (l expression*?))
-)
+    (l expression*?)))
 
 (define-datatype expression* expression*?
   (empty-expr)
   (expressions 
     (expr expression?) 
-    (rest-exprs expression*?))
-)
+    (rest-exprs expression*?)))
+
 (define-datatype environment environment?
   (empty-environment)
   (extend-environment
@@ -87,6 +83,7 @@
 
 
 (define-datatype expval expval?
+  (empty-val)
   (num-val 
     (num number?))
   (bool-val   
