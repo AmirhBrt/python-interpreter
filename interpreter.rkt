@@ -21,22 +21,25 @@
 (define value-of-statement
   (lambda (stmt env)
     (cases statement stmt 
-      (assign (var expr) (letrec ([val (car (value-of-expression expr env))]
-                                  [ref (newref val)]
-                                  [new-env (extend-environment var (ref-val ref) env)])
-                          (cons (empty-val) (list new-env))))
+      (assign (var expr) 
+        (letrec ([val (car (value-of-expression expr env))]
+                [ref (newref val)]
+                [new-env (extend-environment var (ref-val ref) env)])
+          (cons (empty-val) (list new-env))))
 
       (print_stmt (exps) 
-        (letrec ([print_exps (lambda (exps) 
-                              (cases expression* exps
-                                (empty-expr () (print "\n"))
-                                (expressions (expr rest-exprs)
-                                              (begin 
-                                                (print (car (value-of-expression expr env)))
-                                                (print " ")
-                                                (print_exps rest-exprs)
-                                              ))))])
-          (print_exps exps)))
+        (letrec ([get-exp-vals (lambda (exps) 
+                                (cases expression* exps
+                                  (empty-expr  () 
+                                               (list (empty-val)))
+                                  (expressions (expr rest-exprs)
+                                               (cons 
+                                                (car (value-of-expression expr env)) 
+                                                (get-exp-vals rest-exprs)))))])
+          (begin 
+            (print-vals (get-exp-vals exps))
+            (cons (empty-val) (list env))
+          )))
             
       (else (eopl:error "FUCK\n")))))
 

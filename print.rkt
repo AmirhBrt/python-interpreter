@@ -19,4 +19,5 @@
       (num-val (num) (display num))
       (bool-val (bool) (display bool))
       (else (eopl:error "Invalid expval type")))))
-     
+
+(provide (all-defined-out))
