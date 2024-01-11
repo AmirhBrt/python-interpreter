@@ -24,17 +24,18 @@
                                   [ref (newref val)]
                                   [new-env (extend-environment var (ref-val ref) env)])
                           (cons (empty-val) (list new-env))))
+
       (print_stmt (exps) 
-        (letrec ([print_exp (lambda (exps) 
-          (cond
-            [(null? exps) (print "\n")]
-            [else
-            (begin
-            (let ([val (car (value-of-expression (car exp) env))])
-              (print val))
-            (print_exp (cdr exps)))]))])
-            (print_exp exps)
-            ))
+        (letrec ([print_exps (lambda (exps) 
+                              (cases expression* exps
+                                (empty-expr () (print "\n"))
+                                (expressions (expr rest-exprs)
+                                              (begin 
+                                                (print (car (value-of-expression expr env)))
+                                                (print " ")
+                                                (print_exps rest-exprs)
+                                              ))))])
+          (print_exps exps)))
             
       (else (eopl:error "FUCK\n")))))
 
