@@ -133,13 +133,13 @@
 
 (define make-array
   (lambda (expvals)
-      (cond 
-        [(null? expvals) 
-          (empty-array)]
-        [else 
-          (a-array
-            (car expvals)
-            (make-array (cdr expvals)))])))
+    (cond 
+      [(null? expvals) 
+        (empty-array)]
+      [else 
+        (a-array
+          (car expvals)
+          (make-array (cdr expvals)))])))
 
 (define array-ref
   (lambda (arr idx)

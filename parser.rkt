@@ -107,7 +107,6 @@
     (Expressions ((Expressions COMMA Expression) (expressions $3 $1))
                  ((Expression) (expressions $1 (empty-expr)))
                  ))
-   ;    (debug "parser-log.txt")
    ))
 
 (define (parse-scan prog-string)

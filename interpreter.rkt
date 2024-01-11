@@ -62,9 +62,18 @@
   (lambda (exp env) 
     (cases expression exp
       (mult_op (left right) 
-        (let ([val1 (expval->num (car (value-of-expression left env)))]
-              [val2 (expval->num (car (value-of-expression right env)))])
-             (list (num-val (* val1 val2)) env)))
+        (let ([expval1 (car (value-of-expression left env))])
+          (if 
+            (= 0 (expval->num expval1))
+            (list (num-val 0) env)
+            (let ([expval2 (car (value-of-expression right env))])
+              (list (num-val (* (expval->num expval1) (expval->num expval2))) env)))))
+      (binary_op (op left right)
+        (let ([expval1 (car (value-of-expression left  env))]
+              [expval2 (car (value-of-expression right env))])
+          (let ([val1 (expval->num expval1)]
+                [val2 (expval->num expval2)])
+            (list (num-val (op val1 val2)) env))))
       (atomic_bool_exp (val) 
         (list (bool-val val) env))
       (atomic_num_exp (val) 
@@ -73,8 +82,8 @@
         (list (empty-val) env))
       (atomic_list_exp (exps) 
         (list (array-val (make-array (get-exp-vals exps env))) env))
-        
-      (ref (var) (list (deref (expval->ref (apply-env env var))) env))
+      (ref (var) 
+        (list (deref (expval->ref (apply-env env var))) env))
       (else (eopl:error "BARATI\n")))))
 
 (define get-exp-vals

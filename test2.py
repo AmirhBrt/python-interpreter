@@ -1,7 +1,9 @@
-y = 25;
-x = False;
-z = 234;
+x = 10;
+y = x + 11;
+print(y);
 
-print(x, z);
-x = [1, [1, 2, 3], 3 * 3, x];
-print(x);
+x = False;
+if x:
+    print(3 + y);
+else:
+    print(2 * y);;
