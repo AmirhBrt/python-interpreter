@@ -1,7 +1,8 @@
 #lang racket
 
-(require "../datatypes/all.rkt")
 (require (lib "eopl.ss" "eopl"))
+
+(require "../datatypes/all.rkt")
 
 (define init-env
   (lambda ()
