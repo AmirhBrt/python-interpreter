@@ -5,6 +5,7 @@
 (require "datatypes/all.rkt")
 (require "passes/parser.rkt")
 (require "utils/environment.rkt")
+(require "utils/print.rkt")
 
 
 (define (evaluate file-name)
@@ -47,7 +48,7 @@
 
       (print_stmt (exps) 
         (begin 
-          (print-vals (get-exp-vals exps env))
+          (print-vals (get-thunkvals exps env))
           (list (empty-val) env)))
 
       (if_stmt (exp if_sts else_sts)
@@ -130,7 +131,7 @@
       (atomic_null_exp ()
         (list (empty-val) env))
       (atomic_list_exp (exps)
-        (list (array-val (make-array (get-exp-vals exps env))) env))
+        (list (array-val (make-array (get-expvals exps env))) env))
       (ref (var) (list (letrec ([ref2 (expval->ref (apply-env env var))]
                               [val (deref ref2)])
                                   (if (expval? val)
@@ -143,7 +144,7 @@
                         env))
 
       (function_call (func_name params) 
-        (let ([params_value (get-array-as-list (make-array (get-exp-vals params env)))])
+        (let ([params_value (get-array-as-list (make-array (get-expvals params env)))])
           (value-of-func-call params_value func_name params env))))))
 
 (define value-of-func-call 
@@ -182,68 +183,25 @@
     (lazy-eval (body env)     
       (value-of-expression body env)))))
 
-(define get-exp-vals
+(define get-expvals
   (lambda (exps env)
     (cases expression* exps
       (empty-expr  ()
         (list))
       (expressions (expr rest-exprs)
         (append 
-          (get-exp-vals rest-exprs env)
+          (get-expvals rest-exprs env)
           (list (lazy-eval expr env)))))))
 
+(define get-thunkvals
+  (lambda (exps env)
+    (let ([ls (get-expvals exps env)])
+      (letrec ([get-thunkvals-rec 
+                (lambda (ls)
+                  (cond 
+                    [(null? ls) (list)]
+                    (else (cons (car (value-of-thunk (car ls))) (get-thunkvals-rec (cdr ls))))))]
+              )
+      (get-thunkvals-rec ls)))))
 
-(define print-vals
-  (lambda (vals) 
-    (cond
-      [(null? vals) (display "\n")]
-      [else (begin              
-              (print-val (car vals))
-              (if (not (null? (cdr vals))) (display " ") (display ""))
-              (print-vals (cdr vals)))])))
-
-(define print-val
-  (lambda (v)
-    (let ([val (if (expval? v) v (car (value-of-thunk v)))]) 
-      (cases expval val
-        (empty-val () 
-          (display ""))
-        (num-val (num) 
-          (display num))
-        (bool-val (bool)
-          (if 
-            bool 
-            (display "True")
-            (display "False")))
-        (ref-val (ref) 
-          (let 
-            ([val (deref ref)])
-            (display val)))
-        (array-val (arr)
-          (print-arr arr))
-        (else (eopl:error "Invalid expval type"))))))
-
-(define print-arr
-  (lambda (arr)
-    (begin
-      (display "\n")
-      (display "[")
-      (print-arr-elements arr)
-      (display "]\n"))))
-
-(define print-arr-elements
-  (lambda (arr)
-    (cases array arr
-      (empty-array () (display ""))
-      (a-array (first rest)
-        (begin
-          (cases array rest
-            (empty-array () 
-              (print-val first))
-            (a-array (f r) 
-              (begin
-                (print-val first)
-                (display " ,"))))
-          (print-arr-elements rest))))))
-
-(provide (all-defined-out))
+(provide interpret evaluate)
