@@ -226,10 +226,9 @@
 (define print-arr
   (lambda (arr)
     (begin
-      (display "\n")
       (display "[")
       (print-arr-elements arr)
-      (display "]\n"))))
+      (display "]"))))
 
 (define print-arr-elements
   (lambda (arr)
