@@ -5,7 +5,6 @@
 (require "datatypes/all.rkt")
 (require "passes/parser.rkt")
 (require "utils/environment.rkt")
-(require "utils/print.rkt")
 
 
 (define (evaluate file-name)
@@ -48,7 +47,7 @@
 
       (print_stmt (exps) 
         (begin 
-          (print-vals (get-thunkvals exps env))
+          (print-vals (get-expvals exps env))
           (list (empty-val) env)))
 
       (if_stmt (exp if_sts else_sts)
@@ -230,5 +229,20 @@
       (display "[")
       (print-arr-elements arr)
       (display "]"))))
+
+(define print-arr-elements
+  (lambda (arr)
+    (cases array arr
+      (empty-array () (display ""))
+      (a-array (first rest)
+        (begin
+          (cases array rest
+            (empty-array () 
+              (print-val first))
+            (a-array (f r) 
+              (begin
+                (print-val first)
+                (display " ,"))))
+          (print-arr-elements rest))))))
 
 (provide interpret evaluate)
