@@ -28,18 +28,25 @@
         (let ([first-statement-val (value-of-statement (car sts) env)])
           (if (or 
                 (equal? (car first-statement-val) (break-val))
-                (equal? (car first-statement-val) (continue-val)))
+                (equal? (car first-statement-val) (continue-val))
+                (equal? (car first-statement-val) (return-val))
+                (and (= 3 (length first-statement-val)) 
+                    (equal? (caddr first-statement-val) (return-val))))
               first-statement-val
               (value-of-statements (cdr sts) (cadr first-statement-val))))])))
 
 (define value-of-statement
   (lambda (stmt env)
     (cases statement stmt 
-      (assign (var expr) 
-        (letrec ([val (car (value-of-expression expr env))]
-                [ref (newref val)]
-                [new-env (extend-environment var (ref-val ref) env)])
-          (cons (empty-val) (list new-env))))
+      (assign (var expr) (let ([val (car (value-of-expression expr env))])
+            (cond            
+            [(is-global env var) (begin
+              (setref! (expval->ref (apply-env env var)) val)
+              (list (empty-val) env)
+            )]
+            [else (letrec ([ref (newref val)]
+                          [new-env (extend-environment var (ref-val ref) env)])
+                            (cons (empty-val) (list new-env)))])))
 
       (print_stmt (exps) 
         (begin 
@@ -62,6 +69,14 @@
                             env 
                             (extend-environment iter (ref-val (newref 0)) env))])
           (value-of-for-statement iter ls sts new-env)))
+      (func (name params sts) (let ([ref (newref (func-val (normal-function name params sts)))])
+            (list (empty-val) 
+                  (extend-environment name (ref-val ref) env))))
+
+      (return_void () (list (empty-val) env (return-val)))
+      (return (exp) (let ([result (value-of-expression exp env)])
+                  (append result (list (return-val)))))
+      (global (var) (list (empty-val) (extend-environment-global var (apply-env env var) env)))
 
       (else (eopl:error "NAJAFI\n")))))
 
@@ -105,16 +120,48 @@
         (let ([arr (expval->array (car (value-of-expression ref env)))]
               [idx (expval->num (car (value-of-expression idx env)))])
           (list (array-ref arr idx) env)))
-      (atomic_bool_exp (val) 
+      (atomic_bool_exp (val)
         (list (bool-val val) env))
-      (atomic_num_exp (val) 
+      (atomic_num_exp (val)
         (list (num-val val) env))
-      (atomic_null_exp () 
+      (atomic_null_exp ()
         (list (empty-val) env))
-      (atomic_list_exp (exps) 
+      (atomic_list_exp (exps)
         (list (array-val (make-array (get-exp-vals exps env))) env))
-      (ref (var) 
-        (list (deref (expval->ref (apply-env env var))) env))
+      (ref (var) (list (deref (expval->ref (apply-env env var))) env))
+
+      (function_call (func_name params) 
+        (let ([params_value (get-array-as-list (make-array (get-exp-vals params env)))])
+          (cases expression func_name
+            (ref (var) (let ([func (expval->func (deref (expval->ref (apply-env env var))))])
+                (cases function func
+                  (normal-function (name defualt_params sts) 
+                    (letrec ([assign-params
+                          (lambda (params defualt_params)
+                                (cases func_param* defualt_params
+                                  (empty-param () (list (empty-val) env params))
+                                  (func_params (first rest)
+                                    (cases func_param first
+                                      (with_default (var2 exp)
+                                      (letrec ([ref (newref (car params))]
+                                            [result (assign-params params rest)]
+                                            [new-env (cadr result)]
+                                            [new-params (caddr result)]
+                                            )
+                                          (cond 
+                                          [(null? new-params) (begin
+                                            (let ([ref (newref (car (value-of-expression exp env)))])
+                                                (list (empty-val) (extend-environment var2 (ref-val ref) new-env) new-params))
+                                          )]
+                                          [else  (let ([ref (newref (car new-params))])
+                                                (list (empty-val) (extend-environment var2 (ref-val ref) new-env) (cdr new-params)))]
+                                          ))))))
+                            )]) 
+                        (let ([new-env (cadr (assign-params params_value defualt_params))])                               
+                              (list (car (value-of-statements sts new-env)) env)))
+                              ))))
+
+            (else (eopl:error "the function name must be a variable\n")))))
       (else (eopl:error "BARATI\n")))))
 
 (define get-exp-vals

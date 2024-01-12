@@ -78,6 +78,10 @@
   (extend-environment
     (var string?)
     (val expval?)
+    (env environment?))
+  (extend-environment-global
+    (var string?)
+    (val expval?)
     (env environment?)))
 
 (define-datatype array array?
@@ -88,6 +92,7 @@
 
 (define-datatype expval expval?
   (empty-val)
+  (return-val)
   (break-val)
   (continue-val)
   (num-val 
@@ -96,6 +101,8 @@
     (flag boolean?))
   (array-val  
     (array array?))
+  (func-val
+    (func function?))
   (ref-val
     (ref reference?)))
 
@@ -103,6 +110,13 @@
 (define reference?
   (lambda (v)
     (integer? v)))
+
+(define-datatype function function?
+  (normal-function 
+    (name string?) 
+    (params func_param*?) 
+    (statements list?))
+)
 
 (provide (all-defined-out))
 (#%provide (all-defined))

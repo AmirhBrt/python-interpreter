@@ -30,6 +30,12 @@
       (array-val (arr) arr)
       (else (expval-extractor-error 'array v)))))
 
+(define expval->func
+  (lambda (v)
+    (cases expval v
+      (func-val (func) func)
+      (else (expval-extractor-error 'func v)))))
+
 (define expval->array_or_num_or_bool
   (lambda (v)
     (cases expval v
