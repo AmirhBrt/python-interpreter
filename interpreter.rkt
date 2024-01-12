@@ -37,29 +37,31 @@
   (lambda (stmt env)
     (cases statement stmt 
       (assign (var expr) (let ([val (lazy-eval expr env)])
-            (cond            
-            [(is-global env var) (begin              
-              (setref! (expval->ref (apply-env env var)) val)
-              (list (empty-val) env)
-            )]
-            [else (letrec ([ref (newref val)]
-                          [new-env (extend-environment var (ref-val ref) env)])
-                            (cons (empty-val) (list new-env)))])))
+        (cond            
+          [(is-global env var) 
+              (begin              
+                (setref! (expval->ref (apply-env env var)) val)
+                (list (empty-val) env))]
+          [else (let ([new-env (extend-environment var (ref-val (newref val)) env)])
+                        (list (empty-val) new-env))])))
 
       (print_stmt (exps) 
         (begin 
-          (print-vals (get-exp-vals-lazy exps env))
-          (cons (empty-val) (list env))))
+          (print-vals (get-exp-vals exps env))
+          (list (empty-val) env)))
 
       (if_stmt (exp if_sts else_sts)
         (let ([val (car (value-of-expression exp env))])
           (cond
-          [(expval->bool val) (value-of-statements if_sts env)]
-          [else (value-of-statements else_sts env)])))
+            [(expval->bool val) (value-of-statements if_sts env)]
+            [else (value-of-statements else_sts env)])))
 
-      (pass () (list (empty-val) env))
-      (continue () (list (continue-val) env))
-      (break () (list (break-val) env))
+      (pass () 
+        (list (empty-val) env))
+      (continue () 
+        (list (continue-val) env))
+      (break () 
+        (list (break-val) env))
       
       (for_stmt (iter array-exp sts)
         (let ([ls (get-array-as-list (expval->array (car (value-of-expression array-exp env))))]
@@ -67,16 +69,19 @@
                             env 
                             (extend-environment iter (ref-val (newref 0)) env))])
           (value-of-for-statement iter ls sts new-env)))
-      (func (name params sts) (let ([ref (newref (func-val (normal-function name params sts)))])
-            (list (empty-val) 
-                  (extend-environment name (ref-val ref) env))))
 
-      (return_void () (list (empty-val) env (return-val)))
-      (return (exp) (let ([result (value-of-expression exp env)])
-                  (append result (list (return-val)))))
-      (global (var) (list (empty-val) (extend-environment-global var (apply-env env var) env)))
+      (func (name params sts)
+        (let ([ref (newref (func-val (normal-function name params sts)))])
+          (list (empty-val) (extend-environment name (ref-val ref) env))))
 
-      (else (eopl:error "NAJAFI\n")))))
+      (return_void () 
+        (list (empty-val) env (return-val)))
+      (return (exp) 
+        (let ([result (value-of-expression exp env)])
+          (append result (list (return-val)))))
+
+      (global (var) 
+        (list (empty-val) (extend-environment-global var (apply-env env var) env))))))
 
 (define value-of-for-statement
   (lambda (iter expval-ls sts env)
@@ -125,7 +130,7 @@
       (atomic_null_exp ()
         (list (empty-val) env))
       (atomic_list_exp (exps)
-        (list (array-val (make-array (get-exp-vals-lazy exps env))) env))
+        (list (array-val (make-array (get-exp-vals exps env))) env))
       (ref (var) (list (letrec ([ref2 (expval->ref (apply-env env var))]
                               [val (deref ref2)])
                                   (if (expval? val)
@@ -138,7 +143,7 @@
                         env))
 
       (function_call (func_name params) 
-        (let ([params_value (get-array-as-list (make-array (get-exp-vals-lazy params env)))])
+        (let ([params_value (get-array-as-list (make-array (get-exp-vals params env)))])
           (cases expression func_name
             (ref (var) (let ([func (expval->func (deref (expval->ref (apply-env env var))))])
                 (cases function func
@@ -173,18 +178,7 @@
   (lambda (t) (cases lazy t
     (lazy-eval (body env) (begin      
       (value-of-expression body env)
-    ))
-  )))
-
-(define get-exp-vals-lazy
-  (lambda (exps env)
-    (cases expression* exps
-      (empty-expr  ()
-        (list))
-      (expressions (expr rest-exprs)
-        (append 
-          (get-exp-vals-lazy rest-exprs env)
-          (list (lazy-eval expr env)))))))
+    )))))
 
 (define get-exp-vals
   (lambda (exps env)
@@ -193,8 +187,8 @@
         (list))
       (expressions (expr rest-exprs)
         (append 
-          (get-exp-vals-lazy rest-exprs env)
-          (list (car (value-of-expression expr env))))))))
+          (get-exp-vals rest-exprs env)
+          (list (lazy-eval expr env)))))))
 
 
 (define print-vals
