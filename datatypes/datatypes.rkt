@@ -87,7 +87,7 @@
 (define-datatype array array?
   (empty-array)
   (a-array
-    (first expval?)
+    (first lazy?)
     (rest array?)))
 
 (define-datatype expval expval?
@@ -106,6 +106,8 @@
   (ref-val
     (ref reference?)))
 
+(define-datatype lazy lazy?
+  (lazy-eval (body expression?) (env environment?)))
 
 (define reference?
   (lambda (v)
