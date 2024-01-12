@@ -144,41 +144,43 @@
 
       (function_call (func_name params) 
         (let ([params_value (get-array-as-list (make-array (get-exp-vals params env)))])
-          (cases expression func_name
-            (ref (var) (let ([func (expval->func (deref (expval->ref (apply-env env var))))])
-                (cases function func
-                  (normal-function (name defualt_params sts) 
-                    (letrec ([assign-params
-                          (lambda (params defualt_params)
-                                (cases func_param* defualt_params
-                                  (empty-param () (list (empty-val) env params))
-                                  (func_params (first rest)
-                                    (cases func_param first
-                                      (with_default (var2 exp)
-                                      (letrec ([result (assign-params params rest)]
-                                            [new-env (cadr result)]
-                                            [new-params (caddr result)])
-                                          (cond 
-                                          [(null? new-params) (begin
-                                            (let ([ref (newref (lazy-eval exp env))])
-                                                (list (empty-val) (extend-environment var2 (ref-val ref) new-env) new-params))
-                                          )]
-                                          [else  (let ([ref (newref (car new-params))])
-                                                (list (empty-val) (extend-environment var2 (ref-val ref) new-env) (cdr new-params)))]
-                                          ))))))
-                            )]) 
-                        (let ([new-env (cadr (assign-params params_value defualt_params))])                               
-                              (list (car (value-of-statements sts new-env)) env)))
-                              ))))
+          (value-of-func-call params_value func_name params env))))))
 
-            (else (eopl:error "the function name must be a variable\n")))))
-      (else (eopl:error "BARATI\n")))))
+(define value-of-func-call 
+  (lambda (params_value func_name params env)
+    (cases expression func_name
+      (ref (var) (let ([func (expval->func (deref (expval->ref (apply-env env var))))])
+        (cases function func
+          (normal-function (name defualt_params sts) 
+            (letrec ([assign-params
+                  (lambda (params defualt_params)
+                        (cases func_param* defualt_params
+                          (empty-param () (list (empty-val) env params))
+                          (func_params (first rest)
+                            (cases func_param first
+                              (with_default (var2 exp)
+                              (letrec ([result (assign-params params rest)]
+                                    [new-env (cadr result)]
+                                    [new-params (caddr result)])
+                                  (cond 
+                                  [(null? new-params) (begin
+                                    (let ([ref (newref (lazy-eval exp env))])
+                                        (list (empty-val) (extend-environment var2 (ref-val ref) new-env) new-params))
+                                  )]
+                                  [else  (let ([ref (newref (car new-params))])
+                                        (list (empty-val) (extend-environment var2 (ref-val ref) new-env) (cdr new-params)))]
+                                  ))))))
+                    )]) 
+                (let ([new-env (cadr (assign-params params_value defualt_params))])                               
+                      (list (car (value-of-statements sts new-env)) env)))
+                      ))))
+
+      (else (eopl:error "the function name must be a variable\n")))))
 
 (define value-of-thunk
   (lambda (t) (cases lazy t
-    (lazy-eval (body env) (begin      
-      (value-of-expression body env)
-    )))))
+    (lazy-eval (body env)     
+      (value-of-expression body env)))))
 
 (define get-exp-vals
   (lambda (exps env)
@@ -202,28 +204,24 @@
 
 (define print-val
   (lambda (v)
-    (let ([val2 (if (expval? v) v (car (value-of-thunk v)))]) 
-      (begin
-      (cases expval val2
-      (empty-val () 
-        (display ""))
-      (num-val (num) 
-        (display num))
-      (bool-val (bool)
-        (if 
-          bool 
-          (display "True")
-          (display "False")))
-      (ref-val (ref) 
-        (let 
-          ([val (deref ref)])
-          (display val)))
-      (array-val (arr)
-        (print-arr arr))
-      (else (eopl:error "Invalid expval type")))
-      )
-    )
-    ))
+    (let ([val (if (expval? v) v (car (value-of-thunk v)))]) 
+      (cases expval val
+        (empty-val () 
+          (display ""))
+        (num-val (num) 
+          (display num))
+        (bool-val (bool)
+          (if 
+            bool 
+            (display "True")
+            (display "False")))
+        (ref-val (ref) 
+          (let 
+            ([val (deref ref)])
+            (display val)))
+        (array-val (arr)
+          (print-arr arr))
+        (else (eopl:error "Invalid expval type"))))))
 
 (define print-arr
   (lambda (arr)
