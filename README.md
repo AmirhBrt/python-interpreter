@@ -14,13 +14,14 @@ This project implements a Python interpreter in *Racket* programming language. T
 1. Clone the repository to your local machine.
 2. Open a terminal or command prompt.
 3. Navigate to the directory where the repository is cloned.
-4. Run the following command to start the interpreter:
+4. Place your python code in test.py 
+5. Run the following command to start the interpreter:
 
 ```bash   
-   racket interpreter.rkt
+   racket main.rkt
 ```   
 
-5. The interpreter will start running, and you can start entering Python expressions to be evaluated.
+5. The interpreter will start running, and you can start entering Python expressions to be evaluated. you can also import *evaluate* function and pass your python file locatoin to it.
 
 ## Examples
 Here are some examples of Python expressions that can be evaluated using this interpreter:
