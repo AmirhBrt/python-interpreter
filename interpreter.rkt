@@ -193,15 +193,42 @@
           (get-expvals rest-exprs env)
           (list (lazy-eval expr env)))))))
 
-(define get-thunkvals
-  (lambda (exps env)
-    (let ([ls (get-expvals exps env)])
-      (letrec ([get-thunkvals-rec 
-                (lambda (ls)
-                  (cond 
-                    [(null? ls) (list)]
-                    (else (cons (car (value-of-thunk (car ls))) (get-thunkvals-rec (cdr ls))))))]
-              )
-      (get-thunkvals-rec ls)))))
+
+(define print-vals
+  (lambda (vals) 
+    (cond
+      [(null? vals) (display "\n")]
+      [else (begin              
+              (print-val (car vals))
+              (if (not (null? (cdr vals))) (display " ") (display ""))
+              (print-vals (cdr vals)))])))
+
+(define print-val
+  (lambda (v)
+    (let ([val (if (expval? v) v (car (value-of-thunk v)))]) 
+      (cases expval val
+        (empty-val () 
+          (display ""))
+        (num-val (num) 
+          (display num))
+        (bool-val (bool)
+          (if 
+            bool 
+            (display "True")
+            (display "False")))
+        (ref-val (ref) 
+          (let 
+            ([val (deref ref)])
+            (display val)))
+        (array-val (arr)
+          (print-arr arr))
+        (else (eopl:error "Invalid expval type"))))))
+
+(define print-arr
+  (lambda (arr)
+    (begin
+      (display "[")
+      (print-arr-elements arr)
+      (display "]"))))
 
 (provide interpret evaluate)
