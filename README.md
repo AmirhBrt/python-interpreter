@@ -41,7 +41,7 @@ In this example, the value of `x` is computed lazily when it is used in the assi
    x = 10;
    y = 20;
    z = x + y;
-   print(z)  # Output: 30
+   print(z);  # Output: 30
 ```
 
 In this example, each assignment expression is evaluated lazily. The value of `x` and `y` is computed when they are used in the assignment expression for `z`. The value of `z` is then printed.
