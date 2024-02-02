@@ -206,8 +206,6 @@
 
 (define value-of-func-call 
   (lambda (params_value func_name params env)
-    (begin
-    (display func_name)
     (cases expression func_name
       (ref (var) (let ([func (expval->func (deref (expval->ref (apply-env env var))))])
         (cases function func
@@ -243,9 +241,9 @@
       (begin
       ;;; (display body)
       ;;; (display "\nthunk\n")
+      
       (let ([val ((value-of-expression body env))])
-      (if (expval? val) val (value-of-thunk val))
-      )
+      (if (lazy? val) (value-of-thunk val) val))
       )))))
 
 (define get-expvals
