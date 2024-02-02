@@ -207,7 +207,10 @@
 (define value-of-func-call 
   (lambda (params_value func_name params env)
     (cases expression func_name
-      (ref (var) (let ([func (expval->func (deref (expval->ref (apply-env env var))))])
+      (ref (var) (letrec (
+          [func3 (deref (expval->ref (apply-env env var))) ]
+          [func (if (expval? func3) (expval->func func3) (expval->func (car (value-of-thunk func3))))]
+      )
         (cases function func
           (normal-function (name defualt_params sts) 
             (letrec ([assign-params
@@ -242,7 +245,9 @@
       ;;; (display body)
       ;;; (display "\nthunk\n")
       
-      (value-of-expression body env)
+      (let ([val (value-of-expression body env)])
+      (if (lazy? val) (value-of-thunk val) val))
+      
       )))))
 
 (define get-expvals
@@ -272,11 +277,11 @@
 (define print-val
   (lambda (v)
   (begin
-    (display "\nNIMA\n")
-    (display v)
-    (display "\nFIN\n")
+    ;;; (display "\nNIMA\n")
+    ;;; (display v)
+    ;;; (display "\nFIN\n")
     (let ([val (if (expval? v) v (begin
-      (display "\ntests\n")
+      ;;; (display "\ntests\n")
       (car (value-of-thunk v))
     ))]) 
       (cases expval val
