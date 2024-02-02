@@ -4,6 +4,6 @@
 (require "passes/parser.rkt")
 
 
-(evaluate "./Tests/in/in14.txt")
+(evaluate "./Tests/in/in2.txt")
 
 (provide (all-defined-out))

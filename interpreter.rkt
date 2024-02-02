@@ -132,7 +132,7 @@
             (let ([ans (op val1 val2)])
               (cond 
                 [(boolean? ans) (list (bool-val ans) env)]
-                [(number? ans) (list (num-val ans) env)]
+                [(number? ans) (list (num-val (if (integer? ans) ans (exact->inexact ans))) env)]
                 [else (list (array-val ans) env)])))))
       (unary_op (op exp)
         (let ([expval (car (value-of-expression exp  env))])
@@ -140,7 +140,7 @@
             (let ([ans (op val)])
               (cond
                 [(boolean? ans) (list (bool-val ans) env)]
-                [(number? ans) (list (num-val ans) env)]
+                [(number? ans) (list (num-val (if (integer? ans) ans (exact->inexact ans))) env)]
                 [else (list (array-val ans) env)])))))
       (list_ref (ref idx)
       (begin
@@ -321,7 +321,7 @@
             (a-array (f r) 
               (begin
                 (print-val first)
-                (display " ,"))))
+                (display ", "))))
           (print-arr-elements rest))))))
 
 
