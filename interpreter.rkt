@@ -117,8 +117,12 @@
                 [else (list (array-val ans) env)])))))
       (unary_op (op exp)
         (let ([expval (car (value-of-expression exp  env))])
-          (let ([val (expval->num expval)])
-            (list (num-val (op 0 val)) env))))
+          (let ([val (expval->array_or_num_or_bool expval)])
+            (let ([ans (op val)])
+              (cond
+                [(boolean? ans) (list (bool-val ans) env)]
+                [(number? ans) (list (num-val ans) env)]
+                [else (list (array-val ans) env)])))))
       (list_ref (ref idx)
         (let ([arr (expval->array (car (value-of-expression ref env)))]
               [idx (expval->num (car (value-of-expression idx env)))])
