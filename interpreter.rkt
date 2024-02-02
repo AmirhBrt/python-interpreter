@@ -242,8 +242,7 @@
       ;;; (display body)
       ;;; (display "\nthunk\n")
       
-      (let ([val ((value-of-expression body env))])
-      (if (lazy? val) (value-of-thunk val) val))
+      (value-of-expression body env)
       )))))
 
 (define get-expvals
