@@ -13,6 +13,7 @@
 (define (interpret parse-tree)
   (begin 
     (initialize-store!)
+    ;;; (display parse-tree)
     (value-of-statements parse-tree (init-env))
     (display "")))
 
@@ -35,19 +36,28 @@
 
 (define value-of-statement
   (lambda (stmt env)
+  (begin
+    ;;; (display "STMT:\n")
+    ;;; (display stmt)
+    ;;; (display "\n")
     (cases statement stmt 
       (assign (var expr) (let ([val (lazy-eval expr env)])
+        (begin
+        ;;; (display "gggggaklgnaklfgjaklfjklafjkldajfadfjklaj")
         (cond            
           [(is-global env var) 
-              (begin              
+              (begin                
                 (setref! (expval->ref (apply-env env var)) val)
                 (list (empty-val) env))]
           [else (let ([new-env (extend-environment var (ref-val (newref val)) env)])
-                        (list (empty-val) new-env))])))
+                        (list (empty-val) new-env))])
+        )        
+        ))
 
       (print_stmt (exps) 
         (begin 
-          (print-vals (get-exp-vals exps env))
+          ;;; (display (get-expvals exps env))
+          (print-vals (get-expvals exps env))
           (list (empty-val) env)))
 
       (if_stmt (exp if_sts else_sts)
@@ -81,7 +91,12 @@
           (append result (list (return-val)))))
 
       (global (var) 
-        (list (empty-val) (extend-environment-global var (apply-env env var) env))))))
+      (begin
+      ;;; (display "\nGLOBAL\n")
+      ;;; (display var)
+      (list (empty-val) (extend-environment-global var (apply-env env var) env)))))
+      )
+        ))
 
 (define value-of-for-statement
   (lambda (iter expval-ls sts env)
@@ -97,6 +112,10 @@
 
 (define value-of-expression 
   (lambda (exp env) 
+  (begin
+    ;;; (display "EXPS:\n")
+    ;;; (display exp)
+    ;;; (display "\n")
     (cases expression exp
       (mult_op (left right) 
         (let ([expval1 (car (value-of-expression left env))])
@@ -117,37 +136,78 @@
                 [else (list (array-val ans) env)])))))
       (unary_op (op exp)
         (let ([expval (car (value-of-expression exp  env))])
-          (let ([val (expval->num expval)])
-            (list (num-val (op 0 val)) env))))
+          (let ([val (expval->array_or_num_or_bool expval)])
+            (let ([ans (op val)])
+              (cond
+                [(boolean? ans) (list (bool-val ans) env)]
+                [(number? ans) (list (num-val ans) env)]
+                [else (list (array-val ans) env)])))))
       (list_ref (ref idx)
+      (begin
+      ;;; (display "--------NIMMMMMMM---------------------\n")
+      ;;; (display (expval->array (car (value-of-expression ref env))))
+      ;;; (display "\n--------NIMMMMMMM---------------------\n")      
         (let ([arr (expval->array (car (value-of-expression ref env)))]
               [idx (expval->num (car (value-of-expression idx env)))])
-          (list (array-ref arr idx) env)))
+          (begin
+          ;;; (display "--------NIdagkafjkajfMMMMMMM---------------------\n")
+          ;;; (display (array-ref arr idx))
+          ;;; (display "\n--------NfakfafkllkIMMMMMMM---------------------\n")
+          (list (let ([vv (array-ref arr idx)]) (if (expval? vv) vv (car (value-of-thunk vv)))) env)
+          )))
+          )
       (atomic_bool_exp (val)
         (list (bool-val val) env))
       (atomic_num_exp (val)
-        (list (num-val val) env))
+      (begin 
+        (let ([val2 (if (lazy? val) (car (value-of-thunk val)) (num-val val))])
+        (list val2 env)))
+      )
       (atomic_null_exp ()
         (list (empty-val) env))
       (atomic_list_exp (exps)
-        (list (array-val (make-array (get-exp-vals exps env))) env))
-      (ref (var) (list (letrec ([ref2 (expval->ref (apply-env env var))]
+        (list (array-val (make-array (get-expvals exps env))) env))
+      (ref (var) 
+        (begin         
+        ;;; (display "-----------------------------\n")
+        ;;; (display var)
+        ;;; (display "\n")
+        ;;; (display (apply-env env var))
+        ;;; (display "\n")
+        ;;; (display (deref (expval->ref (apply-env env var))))
+        ;;; (display "\n")
+        ;;; (display "-----------------------------\n")
+        (list (letrec ([ref2 (expval->ref (apply-env env var))]
                               [val (deref ref2)])
+                                  (begin 
+                                  ;;; (display "--------HHHHHHHHHL---------------------\n")
+                                  ;;; (display val)
+                                  ;;; (display "\n--------HHHHHHHHHL---------------------\n")
                                   (if (expval? val)
                                   val
-                                  (let ([val-thunk (car (value-of-thunk val))])
-                                        (begin                                          
+                                  (letrec (                                  
+                                    [val-thunk (car (value-of-thunk val))])
+                                        (begin
+                                        ;;; (display "--------HHHHHHHHHL---------------------\n")
+                                        ;;; (display val)
+                                        ;;; (display "\n--------HHHHHHHHHL---------------------\n")                                   
                                           (setref! ref2 val-thunk)              
                                           val-thunk
-                                        ))))
-                        env))
+                                        )))
+                                  )
+                                  )
+                        env)
+        )
+      )
 
       (function_call (func_name params) 
-        (let ([params_value (get-array-as-list (make-array (get-exp-vals params env)))])
-          (value-of-func-call params_value func_name params env))))))
+        (let ([params_value (get-array-as-list (make-array (get-expvals params env)))])
+          (value-of-func-call params_value func_name params env)))))))
 
 (define value-of-func-call 
   (lambda (params_value func_name params env)
+    (begin
+    (display func_name)
     (cases expression func_name
       (ref (var) (let ([func (expval->func (deref (expval->ref (apply-env env var))))])
         (cases function func
@@ -180,31 +240,48 @@
 (define value-of-thunk
   (lambda (t) (cases lazy t
     (lazy-eval (body env)     
-      (value-of-expression body env)))))
+      (begin
+      ;;; (display body)
+      ;;; (display "\nthunk\n")
+      (let ([val ((value-of-expression body env))])
+      (if (expval? val) val (value-of-thunk val))
+      )
+      )))))
 
-(define get-exp-vals
+(define get-expvals
   (lambda (exps env)
     (cases expression* exps
       (empty-expr  ()
         (list))
       (expressions (expr rest-exprs)
         (append 
-          (get-exp-vals rest-exprs env)
+          (get-expvals rest-exprs env)
           (list (lazy-eval expr env)))))))
 
 
 (define print-vals
   (lambda (vals) 
+(begin
+    ;;; (display "AK;LDGASGGKAJS:\n")
+    ;;; (display vals)
+    ;;; (display "\n")
     (cond
       [(null? vals) (display "\n")]
-      [else (begin              
+      [else (begin
               (print-val (car vals))
               (if (not (null? (cdr vals))) (display " ") (display ""))
-              (print-vals (cdr vals)))])))
+              (print-vals (cdr vals)))]))))
 
 (define print-val
   (lambda (v)
-    (let ([val (if (expval? v) v (car (value-of-thunk v)))]) 
+  (begin
+    (display "\nNIMA\n")
+    (display v)
+    (display "\nFIN\n")
+    (let ([val (if (expval? v) v (begin
+      (display "\ntests\n")
+      (car (value-of-thunk v))
+    ))]) 
       (cases expval val
         (empty-val () 
           (display ""))
@@ -221,7 +298,7 @@
             (display val)))
         (array-val (arr)
           (print-arr arr))
-        (else (eopl:error "Invalid expval type"))))))
+        (else (eopl:error "Invalid expval type")))))))
 
 (define print-arr
   (lambda (arr)
@@ -245,4 +322,5 @@
                 (display " ,"))))
           (print-arr-elements rest))))))
 
-(provide (all-defined-out))
+
+(provide interpret evaluate)

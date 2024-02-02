@@ -1,0 +1,11 @@
+idx = 0;
+x = [];
+y = [1**2, 2**2, 3**2, 4**2];
+print(x, y, x + y);
+a = 17;
+b = 31;
+z = [a+b, a-b, a/b, a*b];
+print(z);
+y = [y[idx] * z[idx + 2]] + y;
+z = [z[idx] * y[idx + 2]] + z;
+print(y + z);

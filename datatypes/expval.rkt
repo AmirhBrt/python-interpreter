@@ -6,43 +6,63 @@
 
 (define expval->num
   (lambda (v)
+  (begin
+    ;;; (display v)
+    ;;; (display "\n")
     (cases expval v
       (num-val (num) num)
       ;;; (bool-val (bool) 
       ;;;   (if bool 1 0))
-      (else (expval-extractor-error 'num v)))))
+      (else (expval-extractor-error 'num v))))))
 
 (define expval->bool
   (lambda (v)
-    (cases expval v
+  (begin
+    ;;; (display v)
+    ;;; (display "\n")
+    (cases expval v    
       (bool-val (bool) bool)
-      (else (expval-extractor-error 'bool v)))))
+      (else (expval-extractor-error 'bool v))))))
 
 (define expval->ref
   (lambda (v)
+    (begin
+    ;;; (display v)
+    ;;; (display "\n")
     (cases expval v
       (ref-val (ref) ref)
-      (else (expval-extractor-error 'reference v)))))
+      (else (expval-extractor-error 'reference v)))
+    )
+  ))
 
 (define expval->array
   (lambda (v)
+  (begin
+    ;;; (display v)
+    ;;; (display "test\n")
     (cases expval v
       (array-val (arr) arr)
-      (else (expval-extractor-error 'array v)))))
+      (else (expval-extractor-error 'array v))))))
 
 (define expval->func
   (lambda (v)
+  (begin
+    ;;; (display v)
+    ;;; (display "\n")
     (cases expval v
       (func-val (func) func)
-      (else (expval-extractor-error 'func v)))))
+      (else (expval-extractor-error 'func v))))))
 
 (define expval->array_or_num_or_bool
   (lambda (v)
+  (begin
+    ;;; (display v)
+    ;;; (display "\n")
     (cases expval v
       (array-val (arr) arr)
       (num-val (num) num)
       (bool-val (bool) bool)
-      (else (expval-extractor-error 'array_or_num_or_bool v)))))
+      (else (expval-extractor-error 'array_or_num_or_bool v))))))
 
 (define expval-extractor-error
   (lambda (variant value)

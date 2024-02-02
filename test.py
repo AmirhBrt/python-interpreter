@@ -51,4 +51,4 @@ temp = test_lazy(1099999, lazy());
 print(temp);
 
 arr = [1, True, 0.6, [10 * 10, 0, fibo(7)]];
-print(arr);
+

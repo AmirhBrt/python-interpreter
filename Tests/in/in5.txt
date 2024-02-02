@@ -1,0 +1,14 @@
+list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+even = 2;
+for i in list:
+	if i == even:
+		even = even + 2;
+		continue;
+	else:
+		for j in list:
+			if i < j: break;
+			else: print (i/2 + 0.5, j);
+			;
+		;
+	;
+;

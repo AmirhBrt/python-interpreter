@@ -1,0 +1,23 @@
+def f(arr=[], x=-1):
+	for i in arr:
+		i = i * x;
+	;
+	return arr;
+;
+
+def g(arr=[], x=-1):
+	idx = 0;
+	result = [];
+	for i in arr:
+		result = result + [i * x];
+		idx = idx + 1;
+	;
+	return result;
+;
+
+list1 = [11, 12, 13, 14, 15];
+print(list1);
+list2 = f(list1);
+print(list2);
+list3 = g(list1);
+print(list3);

@@ -1,0 +1,6 @@
+x = -5 + 2;
+y = x**2 + 4 * 3;
+z = x + y + -2**3**2;
+print (x, y, z);
+z = not z < x + y and True or False;
+print (z or not True);

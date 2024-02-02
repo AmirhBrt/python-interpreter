@@ -1,0 +1,31 @@
+def max(arr=[], current=0):
+	for i in arr:
+		if i > current: current = i;
+		else: pass;
+		;
+	;
+	return current;
+;
+
+def min(arr=[], current=0):
+	for i in arr:
+		if i < current: current = i;
+		else: pass;
+		;
+	;
+	return current;
+;
+
+max = min;
+
+def is_new_max(arr=[], x=0):
+	max = max(arr, x);
+	if x > max: return False;
+	else: return True;
+	;
+	print(x);
+;
+
+if is_new_max([7, -9, 6, 1, -16, -4]): print(1);
+else: print(0);
+;

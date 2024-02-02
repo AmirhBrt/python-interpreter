@@ -1,0 +1,22 @@
+list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+a = 1;
+b = 6;
+if a + b < 10:	print (list[a], list[b], list[a+b]);
+else:
+	if b > a and b - a < 10: print (list[a], list[b], list[b-a]);
+	else:
+		if a > b and a - b < 10: print (list[a], list[b], list[a-b]);
+		else: pass;
+		;
+	;
+;
+b = 2 * b;
+if a + b < 10:	print (list[a], list[b], list[a+b]);
+else:
+	if b > a and b - a < 10: print (list[a], list[b], list[b-a]);
+	else:
+		if a > b and a - b < 10: print (list[a], list[b], list[a-b]);
+		else: pass;
+		;
+	;
+;

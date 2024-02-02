@@ -1,0 +1,29 @@
+def append(arr=[], x=0):
+	return arr + [x];
+;
+
+def sum(arr=[]):
+	result = 0;
+	for i in arr:
+		result = result + i;
+	;
+	return result;
+;
+
+def prod(arr=[]):
+	result = 1;
+	for i in arr:
+		result = result * i;
+	;
+	return result;
+;
+
+list = [1, 2, 3, 4, 5];
+curr_list = [];
+
+for i in list:
+	curr_list = append(curr_list, i);
+	list = append(list, curr_list);
+	print(sum(curr_list), prod(curr_list));
+;
+print(list);

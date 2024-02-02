@@ -6,6 +6,7 @@
 
 
 (require "../datatypes/all.rkt")
+(require "../datatypes/all.rkt")
 (#%require "../datatypes/all.rkt")
 
 (define python-parser

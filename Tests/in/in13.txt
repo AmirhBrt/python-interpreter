@@ -1,0 +1,32 @@
+fib = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+def main():
+	global fib;
+	def is_fib(arr=[]):
+		idx = -1;
+		for n in arr:
+			idx = idx + 1;
+			if idx < 2: continue;
+			else:
+				if not arr[idx] == arr[idx-1] + arr[idx-2]: return False;
+				else: pass;
+				;
+			;
+		;
+		return True;
+	;
+	print(is_fib(fib));
+	temp = [];
+	idx = -1;
+	for n in fib:
+		idx = idx + 1;
+		if idx < 2: temp = temp + [n];
+		else: temp = temp + [fib[idx-1] + fib[idx-2]];
+		;
+	;
+	fib = temp;
+	return is_fib(fib);
+;
+
+print(main());
+print(main());
